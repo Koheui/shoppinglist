@@ -44,103 +44,102 @@ class FirebaseShoppingListApp {
 
     // イベントリスナーの設定
     bindEvents() {
-        // 古い要素は削除済み - 家族認証のみ使用
+        console.log('bindEvents開始');
+        
+        // 安全な要素取得関数
+        const getElement = (id) => {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.error(`要素が見つかりません: ${id}`);
+            }
+            return element;
+        };
 
         // 認証関連の要素
-        const passwordInput = document.getElementById('passwordInput');
-        const loginButton = document.getElementById('loginButton');
-        const logoutButton = document.getElementById('logoutButton');
-        
-        console.log('認証要素の確認:', {
-            passwordInput: passwordInput,
-            loginButton: loginButton,
-            logoutButton: logoutButton
-        });
-        
-        // モーダル関連の要素
-        const addItemButton = document.getElementById('addItemButton');
-        const addItemModal = document.getElementById('addItemModal');
-        const closeModal = document.getElementById('closeModal');
-        const cancelAdd = document.getElementById('cancelAdd');
-        const confirmAdd = document.getElementById('confirmAdd');
-        const deleteSelectedButton = document.getElementById('deleteSelectedButton');
-        
-        console.log('モーダル要素の確認:', {
-            addItemButton: addItemButton,
-            addItemModal: addItemModal,
-            closeModal: closeModal,
-            cancelAdd: cancelAdd,
-            confirmAdd: confirmAdd,
-            deleteSelectedButton: deleteSelectedButton
-        });
+        const passwordInput = getElement('passwordInput');
+        const loginButton = getElement('loginButton');
+        const logoutButton = getElement('logoutButton');
 
-        // 認証機能
+        // モーダル関連の要素
+        const addItemButton = getElement('addItemButton');
+        const addItemModal = getElement('addItemModal');
+        const closeModal = getElement('closeModal');
+        const cancelAdd = getElement('cancelAdd');
+        const confirmAdd = getElement('confirmAdd');
+        const deleteSelectedButton = getElement('deleteSelectedButton');
+
+        // 認証機能のイベントリスナー設定
         if (loginButton) {
-            loginButton.addEventListener('click', () => this.familyLogin());
-        } else {
-            console.error('loginButtonが見つかりません');
+            loginButton.addEventListener('click', () => {
+                console.log('ログインボタンがクリックされました');
+                this.familyLogin();
+            });
         }
         
         if (logoutButton) {
-            logoutButton.addEventListener('click', () => this.familyLogout());
-        } else {
-            console.error('logoutButtonが見つかりません');
+            logoutButton.addEventListener('click', () => {
+                console.log('ログアウトボタンがクリックされました');
+                this.familyLogout();
+            });
         }
         
         if (passwordInput) {
             passwordInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
+                    console.log('Enterキーが押されました');
                     this.familyLogin();
                 }
             });
-        } else {
-            console.error('passwordInputが見つかりません');
         }
 
-        // モーダル機能
+        // モーダル機能のイベントリスナー設定
         if (addItemButton) {
-            addItemButton.addEventListener('click', () => this.openAddModal());
-        } else {
-            console.error('addItemButtonが見つかりません');
+            addItemButton.addEventListener('click', () => {
+                console.log('追加ボタンがクリックされました');
+                this.openAddModal();
+            });
         }
         
         if (closeModal) {
-            closeModal.addEventListener('click', () => this.closeAddModal());
-        } else {
-            console.error('closeModalが見つかりません');
+            closeModal.addEventListener('click', () => {
+                console.log('閉じるボタンがクリックされました');
+                this.closeAddModal();
+            });
         }
         
         if (cancelAdd) {
-            cancelAdd.addEventListener('click', () => this.closeAddModal());
-        } else {
-            console.error('cancelAddが見つかりません');
+            cancelAdd.addEventListener('click', () => {
+                console.log('キャンセルボタンがクリックされました');
+                this.closeAddModal();
+            });
         }
         
         if (confirmAdd) {
-            confirmAdd.addEventListener('click', () => this.addItemFromModal());
-        } else {
-            console.error('confirmAddが見つかりません');
+            confirmAdd.addEventListener('click', () => {
+                console.log('確認ボタンがクリックされました');
+                this.addItemFromModal();
+            });
         }
         
-        // 削除機能
+        // 削除機能のイベントリスナー設定
         if (deleteSelectedButton) {
-            deleteSelectedButton.addEventListener('click', () => this.deleteSelectedItems());
-        } else {
-            console.error('deleteSelectedButtonが見つかりません');
+            deleteSelectedButton.addEventListener('click', () => {
+                console.log('削除ボタンがクリックされました');
+                this.deleteSelectedItems();
+            });
         }
         
         // モーダル外をクリックで閉じる
         if (addItemModal) {
             addItemModal.addEventListener('click', (e) => {
                 if (e.target === addItemModal) {
+                    console.log('モーダル外がクリックされました');
                     this.closeAddModal();
                 }
             });
-        } else {
-            console.error('addItemModalが見つかりません');
         }
 
-        // 古いイベントリスナーは削除済み - 家族認証のみ使用
+        console.log('bindEvents完了');
     }
 
     // 家族パスワードでログイン
@@ -704,11 +703,31 @@ class FirebaseShoppingListApp {
 
 // アプリケーションの初期化
 let app;
+let isInitialized = false;
+
+function initializeApp() {
+    if (isInitialized) {
+        console.log('アプリは既に初期化されています');
+        return;
+    }
+    
+    console.log('アプリケーションを初期化します');
+    isInitialized = true;
+    app = new FirebaseShoppingListApp();
+}
+
+// 複数のイベントで初期化を試行
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM要素が完全に読み込まれるまで少し待機
-    setTimeout(() => {
-        app = new FirebaseShoppingListApp();
-    }, 100);
+    console.log('DOMContentLoadedイベントが発生しました');
+    setTimeout(initializeApp, 500);
+});
+
+window.addEventListener('load', () => {
+    console.log('window.loadイベントが発生しました');
+    if (!isInitialized) {
+        setTimeout(initializeApp, 100);
+    }
+});
     
     // モーダル機能を拡張
     // モーダルを開く
