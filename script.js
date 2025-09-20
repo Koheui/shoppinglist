@@ -90,6 +90,89 @@ class FirebaseShoppingListApp {
             console.error('パスワード入力欄が見つかりません');
         }
 
+        // モーダル関連の要素
+        const addItemButton = document.getElementById('addItemButton');
+        const addItemModal = document.getElementById('addItemModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelAdd = document.getElementById('cancelAdd');
+        const confirmAdd = document.getElementById('confirmAdd');
+        const itemInput = document.getElementById('itemInput');
+
+        console.log('モーダル要素の確認:', {
+            addItemButton: addItemButton,
+            addItemModal: addItemModal,
+            closeModal: closeModal,
+            cancelAdd: cancelAdd,
+            confirmAdd: confirmAdd,
+            itemInput: itemInput
+        });
+
+        // モーダル機能のイベントリスナー設定
+        if (addItemButton) {
+            console.log('追加ボタンにイベントリスナーを設定');
+            addItemButton.addEventListener('click', () => {
+                console.log('追加ボタンがクリックされました');
+                this.openAddModal();
+            });
+        } else {
+            console.error('追加ボタンが見つかりません');
+        }
+        
+        if (closeModal) {
+            console.log('閉じるボタンにイベントリスナーを設定');
+            closeModal.addEventListener('click', () => {
+                console.log('閉じるボタンがクリックされました');
+                this.closeAddModal();
+            });
+        } else {
+            console.error('閉じるボタンが見つかりません');
+        }
+        
+        if (cancelAdd) {
+            console.log('キャンセルボタンにイベントリスナーを設定');
+            cancelAdd.addEventListener('click', () => {
+                console.log('キャンセルボタンがクリックされました');
+                this.closeAddModal();
+            });
+        } else {
+            console.error('キャンセルボタンが見つかりません');
+        }
+        
+        if (confirmAdd) {
+            console.log('確認ボタンにイベントリスナーを設定');
+            confirmAdd.addEventListener('click', () => {
+                console.log('確認ボタンがクリックされました');
+                this.addItemFromModal();
+            });
+        } else {
+            console.error('確認ボタンが見つかりません');
+        }
+        
+        if (itemInput) {
+            console.log('アイテム入力欄にイベントリスナーを設定');
+            itemInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    console.log('アイテム入力欄でEnterキーが押されました');
+                    this.addItemFromModal();
+                }
+            });
+        } else {
+            console.error('アイテム入力欄が見つかりません');
+        }
+        
+        // モーダル外をクリックで閉じる
+        if (addItemModal) {
+            console.log('モーダルにクリックイベントを設定');
+            addItemModal.addEventListener('click', (e) => {
+                if (e.target === addItemModal) {
+                    console.log('モーダル外がクリックされました');
+                    this.closeAddModal();
+                }
+            });
+        } else {
+            console.error('モーダルが見つかりません');
+        }
+
         console.log('bindEvents完了');
     }
 
@@ -713,10 +796,53 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'none';
     };
 
-    // モーダルからアイテム追加（一時的に無効化）
-    // app.addItemFromModal = async function() {
-    //     // ログイン機能のみに絞っているため、一時的に無効化
-    // };
+    // モーダルからアイテム追加
+    app.addItemFromModal = async function() {
+        const input = document.getElementById('itemInput');
+        if (!input) {
+            console.error('itemInputが見つかりません');
+            return;
+        }
+        
+        const text = input.value.trim();
+
+        if (text === '') {
+            this.showNotification('アイテム名を入力してください', 'warning');
+            return;
+        }
+
+        if (!this.isAuthenticated) {
+            this.showNotification('ログインが必要です', 'warning');
+            return;
+        }
+
+        if (this.items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
+            this.showNotification('このアイテムは既にリストにあります', 'warning');
+            return;
+        }
+
+        const newItem = {
+            text: text,
+            completed: false,
+            createdAt: new Date().toISOString(),
+            familyId: 'family' // 家族共有用の固定ID
+        };
+
+        try {
+            const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const docRef = await addDoc(collection(this.db, 'shoppingItems'), newItem);
+            newItem.id = docRef.id;
+            
+            this.items.unshift(newItem);
+            this.render();
+            this.updateStats();
+            this.showNotification('アイテムが追加されました', 'success');
+            this.closeAddModal();
+        } catch (error) {
+            console.error('アイテムの追加に失敗しました:', error);
+            this.showNotification('アイテムの追加に失敗しました', 'error');
+        }
+    };
 
 // キーボードショートカット
 document.addEventListener('keydown', (e) => {
