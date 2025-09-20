@@ -7,7 +7,7 @@ class FirebaseShoppingListApp {
         this.db = null;
         this.auth = null;
         this.googleProvider = null;
-        this.selectedItemsForDeletion = new Set();
+        // 削除機能は単一チェックボックスに統一
         this.isAuthenticated = false;
         // 家族共有パスワード（family-config.jsから読み込み）
         this.familyPassword = window.FAMILY_CONFIG ? window.FAMILY_CONFIG.password : 'family2024';
@@ -211,7 +211,6 @@ class FirebaseShoppingListApp {
     familyLogout() {
         this.isAuthenticated = false;
         this.items = [];
-        this.selectedItemsForDeletion.clear();
         this.updateAuthUI();
         this.render();
         this.showNotification('ログアウトしました', 'success');
@@ -661,17 +660,14 @@ class FirebaseShoppingListApp {
         }
 
         listContainer.innerHTML = filteredItems.map(item => this.getItemHTML(item)).join('');
-        this.updateDeleteButton();
     }
 
     // アイテムのHTMLを生成
     getItemHTML(item) {
-        const selectedClass = this.selectedItemsForDeletion.has(item.id) ? 'selected' : '';
         return `
-            <li class="shopping-item ${item.completed ? 'completed' : ''} ${selectedClass}" data-id="${item.id}">
-                <input type="checkbox" class="delete-checkbox" onchange="app.toggleDeleteSelection('${item.id}')" ${this.selectedItemsForDeletion.has(item.id) ? 'checked' : ''}>
-                <input type="checkbox" class="item-checkbox" ${item.completed ? 'checked' : ''} 
-                       onchange="app.toggleItem('${item.id}')">
+            <li class="shopping-item" data-id="${item.id}">
+                <input type="checkbox" class="item-checkbox" 
+                       onchange="app.deleteItem('${item.id}')">
                 <span class="item-text">${this.escapeHtml(item.text)}</span>
             </li>
         `;
@@ -702,65 +698,7 @@ class FirebaseShoppingListApp {
         `;
     }
 
-    // 削除対象の選択を切り替え
-    toggleDeleteSelection(id) {
-        if (this.selectedItemsForDeletion.has(id)) {
-            this.selectedItemsForDeletion.delete(id);
-        } else {
-            this.selectedItemsForDeletion.add(id);
-        }
-        this.updateDeleteButton();
-        this.render();
-    }
-
-    // 削除ボタンの状態を更新
-    updateDeleteButton() {
-        const deleteButtonContainer = document.getElementById('deleteButtonContainer');
-        const deleteButton = document.getElementById('deleteSelectedButton');
-        
-        if (this.selectedItemsForDeletion.size > 0) {
-            deleteButtonContainer.style.display = 'block';
-            deleteButton.classList.add('active');
-        } else {
-            deleteButtonContainer.style.display = 'none';
-            deleteButton.classList.remove('active');
-        }
-    }
-
-    // 選択されたアイテムを削除
-    async deleteSelectedItems() {
-        if (this.selectedItemsForDeletion.size === 0) {
-            return;
-        }
-
-        const itemsToDelete = Array.from(this.selectedItemsForDeletion);
-        const confirmMessage = `${itemsToDelete.length}個のアイテムを削除しますか？`;
-        
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-
-        try {
-            const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            
-            // Firebaseから削除
-            const deletePromises = itemsToDelete.map(id => 
-                deleteDoc(doc(this.db, 'shoppingItems', id))
-            );
-            await Promise.all(deletePromises);
-            
-            // ローカルの配列から削除
-            this.items = this.items.filter(item => !this.selectedItemsForDeletion.has(item.id));
-            this.selectedItemsForDeletion.clear();
-            
-            this.render();
-            this.updateDeleteButton();
-            this.showNotification(`${itemsToDelete.length}個のアイテムを削除しました`, 'success');
-        } catch (error) {
-            console.error('アイテムの削除に失敗しました:', error);
-            this.showNotification('アイテムの削除に失敗しました', 'error');
-        }
-    }
+    // 不要な削除関連メソッドは削除済み（単一チェックボックスに統一）
 
     // 統計情報を更新（削除）
     updateStats() {
