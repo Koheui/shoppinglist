@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>買い物リスト - 買い忘れ防止アプリ</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyArRy4WIAA52EJpEvtygYuIox7U_ILyW18",
+            authDomain: "shoppinglist-42af6.firebaseapp.com",
+            projectId: "shoppinglist-42af6",
+            storageBucket: "shoppinglist-42af6.firebasestorage.app",
+            messagingSenderId: "617383471672",
+            appId: "1:617383471672:web:fc3774e2ea4522fcb654cd"
+        };
+        
+        // Firebase初期化
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // グローバル変数として設定
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        window.firebaseAuth = auth;
+        window.googleProvider = googleProvider;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 買い物リスト</h1>
+            <p class="subtitle">買い忘れを防ぐためのアプリ</p>
+            
+            <!-- 簡単認証セクション -->
+            <div id="authSection" class="auth-section">
+                <div id="loginForm" class="auth-form">
+                    <h3>ログインしてデータを保存</h3>
+                    <p class="auth-description">Googleアカウントで簡単ログイン</p>
+                    <button id="googleLoginButton" class="google-login-btn">
+                        <span class="google-icon">G</span>
+                        Googleでログイン
+                    </button>
+                    <div class="auth-divider">
+                        <span>または</span>
+                    </div>
+                    <div class="email-auth">
+                        <input type="email" id="emailInput" placeholder="メールアドレス" required>
+                        <input type="password" id="passwordInput" placeholder="パスワード" required>
+                        <div class="auth-buttons">
+                            <button id="loginButton">ログイン</button>
+                            <button id="signupButton">新規登録</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="userInfo" class="user-info" style="display: none;">
+                    <div class="user-details">
+                        <span id="userEmail"></span>
+                        <span class="user-status">オンライン</span>
+                    </div>
+                    <button id="logoutButton">ログアウト</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="add-item-section">
+                <input type="text" id="itemInput" placeholder="買い物アイテムを入力してください..." maxlength="50">
+                <button id="addButton">追加</button>
+            </div>
+
+            <div class="filter-section">
+                <button class="filter-btn active" data-filter="all">すべて</button>
+                <button class="filter-btn" data-filter="pending">未購入</button>
+                <button class="filter-btn" data-filter="completed">購入済み</button>
+            </div>
+
+            <div class="stats">
+                <span id="totalItems">合計: 0</span>
+                <span id="pendingItems">未購入: 0</span>
+                <span id="completedItems">購入済み: 0</span>
+            </div>
+
+            <ul id="shoppingList" class="shopping-list">
+                <!-- アイテムがここに動的に追加されます -->
+            </ul>
+
+            <div class="actions">
+                <button id="clearCompleted" class="action-btn">購入済みを削除</button>
+                <button id="clearAll" class="action-btn danger">すべて削除</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>買い忘れを防いで、効率的な買い物を！</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
