@@ -7,6 +7,8 @@ class FirebaseShoppingListApp {
         this.db = null;
         this.auth = null;
         this.googleProvider = null;
+        this.deleteMode = false;
+        this.selectedItems = new Set();
         this.init();
     }
 
@@ -49,6 +51,8 @@ class FirebaseShoppingListApp {
         const loginButton = document.getElementById('loginButton');
         const signupButton = document.getElementById('signupButton');
         const logoutButton = document.getElementById('logoutButton');
+        const confirmDelete = document.getElementById('confirmDelete');
+        const cancelDelete = document.getElementById('cancelDelete');
 
         // アイテム追加
         addButton.addEventListener('click', () => this.addItem());
@@ -74,6 +78,10 @@ class FirebaseShoppingListApp {
         loginButton.addEventListener('click', () => this.login());
         signupButton.addEventListener('click', () => this.signup());
         logoutButton.addEventListener('click', () => this.logout());
+
+        // 削除リストボタン
+        confirmDelete.addEventListener('click', () => this.confirmBulkDelete());
+        cancelDelete.addEventListener('click', () => this.cancelBulkDelete());
     }
 
     // 認証状態の監視
@@ -304,27 +312,95 @@ class FirebaseShoppingListApp {
         }
     }
 
-    // アイテム削除
+    // アイテム削除（リスト化）
     async deleteItem(id) {
         if (!this.currentUser) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
 
-        if (confirm('このアイテムを削除しますか？')) {
+        // 削除モードを開始
+        this.deleteMode = true;
+        this.selectedItems.clear();
+        this.selectedItems.add(id);
+        this.showDeleteList();
+    }
+
+    // 削除リストを表示
+    showDeleteList() {
+        const deleteListSection = document.getElementById('deleteListSection');
+        const deleteList = document.getElementById('deleteList');
+        
+        deleteListSection.style.display = 'block';
+        
+        // 削除対象のアイテムを表示
+        const itemsToDelete = this.items.filter(item => this.selectedItems.has(item.id));
+        deleteList.innerHTML = itemsToDelete.map(item => this.getDeleteItemHTML(item)).join('');
+        
+        // スクロールして削除リストを表示
+        deleteListSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 削除アイテムのHTMLを生成
+    getDeleteItemHTML(item) {
+        return `
+            <div class="delete-item" data-id="${item.id}">
+                <input type="checkbox" class="delete-item-checkbox" checked 
+                       onchange="app.toggleDeleteSelection('${item.id}')">
+                <span class="delete-item-text">${this.escapeHtml(item.text)}</span>
+                <span class="delete-item-status ${item.completed ? 'completed' : 'pending'}">
+                    ${item.completed ? '購入済み' : '未購入'}
+                </span>
+            </div>
+        `;
+    }
+
+    // 削除選択を切り替え
+    toggleDeleteSelection(id) {
+        if (this.selectedItems.has(id)) {
+            this.selectedItems.delete(id);
+        } else {
+            this.selectedItems.add(id);
+        }
+        
+        // 選択されたアイテムがない場合は削除リストを非表示
+        if (this.selectedItems.size === 0) {
+            this.cancelBulkDelete();
+        }
+    }
+
+    // 一括削除を確認
+    async confirmBulkDelete() {
+        if (this.selectedItems.size === 0) {
+            this.showNotification('削除するアイテムを選択してください', 'warning');
+            return;
+        }
+
+        if (confirm(`選択した${this.selectedItems.size}個のアイテムを削除しますか？`)) {
             try {
                 const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                await deleteDoc(doc(this.db, 'shoppingItems', id));
                 
-                this.items = this.items.filter(item => item.id !== id);
+                for (const id of this.selectedItems) {
+                    await deleteDoc(doc(this.db, 'shoppingItems', id));
+                }
+                
+                this.items = this.items.filter(item => !this.selectedItems.has(item.id));
                 this.render();
                 this.updateStats();
-                this.showNotification('アイテムを削除しました', 'info');
+                this.cancelBulkDelete();
+                this.showNotification(`${this.selectedItems.size}個のアイテムを削除しました`, 'success');
             } catch (error) {
                 console.error('アイテムの削除に失敗しました:', error);
                 this.showNotification('アイテムの削除に失敗しました', 'error');
             }
         }
+    }
+
+    // 一括削除をキャンセル
+    cancelBulkDelete() {
+        this.deleteMode = false;
+        this.selectedItems.clear();
+        document.getElementById('deleteListSection').style.display = 'none';
     }
 
     // フィルター設定
@@ -352,8 +428,8 @@ class FirebaseShoppingListApp {
         }
     }
 
-    // 購入済みアイテムをクリア
-    async clearCompleted() {
+    // 購入済みアイテムをクリア（リスト化）
+    clearCompleted() {
         if (!this.currentUser) {
             this.showNotification('ログインが必要です', 'warning');
             return;
@@ -365,27 +441,15 @@ class FirebaseShoppingListApp {
             return;
         }
 
-        if (confirm(`購入済みの${completedItems.length}個のアイテムを削除しますか？`)) {
-            try {
-                const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                
-                for (const item of completedItems) {
-                    await deleteDoc(doc(this.db, 'shoppingItems', item.id));
-                }
-                
-                this.items = this.items.filter(item => !item.completed);
-                this.render();
-                this.updateStats();
-                this.showNotification('購入済みアイテムを削除しました', 'success');
-            } catch (error) {
-                console.error('購入済みアイテムの削除に失敗しました:', error);
-                this.showNotification('購入済みアイテムの削除に失敗しました', 'error');
-            }
-        }
+        // 削除モードを開始
+        this.deleteMode = true;
+        this.selectedItems.clear();
+        completedItems.forEach(item => this.selectedItems.add(item.id));
+        this.showDeleteList();
     }
 
-    // すべてのアイテムをクリア
-    async clearAll() {
+    // すべてのアイテムをクリア（リスト化）
+    clearAll() {
         if (!this.currentUser) {
             this.showNotification('ログインが必要です', 'warning');
             return;
@@ -396,23 +460,11 @@ class FirebaseShoppingListApp {
             return;
         }
 
-        if (confirm('すべてのアイテムを削除しますか？この操作は元に戻せません。')) {
-            try {
-                const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                
-                for (const item of this.items) {
-                    await deleteDoc(doc(this.db, 'shoppingItems', item.id));
-                }
-                
-                this.items = [];
-                this.render();
-                this.updateStats();
-                this.showNotification('すべてのアイテムを削除しました', 'success');
-            } catch (error) {
-                console.error('アイテムの削除に失敗しました:', error);
-                this.showNotification('アイテムの削除に失敗しました', 'error');
-            }
-        }
+        // 削除モードを開始
+        this.deleteMode = true;
+        this.selectedItems.clear();
+        this.items.forEach(item => this.selectedItems.add(item.id));
+        this.showDeleteList();
     }
 
     // レンダリング

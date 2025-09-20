@@ -41,18 +41,14 @@
             <h1>🛒 買い物リスト</h1>
             <p class="subtitle">買い忘れを防ぐためのアプリ</p>
             
-            <!-- 簡単認証セクション -->
+            <!-- 控えめな認証セクション -->
             <div id="authSection" class="auth-section">
                 <div id="loginForm" class="auth-form">
-                    <h3>ログインしてデータを保存</h3>
-                    <p class="auth-description">Googleアカウントで簡単ログイン</p>
+                    <p class="auth-description">データを保存するにはログインしてください</p>
                     <button id="googleLoginButton" class="google-login-btn">
                         <span class="google-icon">G</span>
                         Googleでログイン
                     </button>
-                    <div class="auth-divider">
-                        <span>または</span>
-                    </div>
                     <div class="email-auth">
                         <input type="email" id="emailInput" placeholder="メールアドレス" required>
                         <input type="password" id="passwordInput" placeholder="パスワード" required>
@@ -64,10 +60,7 @@
                 </div>
                 
                 <div id="userInfo" class="user-info" style="display: none;">
-                    <div class="user-details">
-                        <span id="userEmail"></span>
-                        <span class="user-status">オンライン</span>
-                    </div>
+                    <span id="userEmail"></span>
                     <button id="logoutButton">ログアウト</button>
                 </div>
             </div>
@@ -98,6 +91,18 @@
             <div class="actions">
                 <button id="clearCompleted" class="action-btn">購入済みを削除</button>
                 <button id="clearAll" class="action-btn danger">すべて削除</button>
+            </div>
+
+            <!-- 削除リストセクション -->
+            <div id="deleteListSection" class="delete-list-section" style="display: none;">
+                <h3>削除するアイテムを選択</h3>
+                <div id="deleteList" class="delete-list">
+                    <!-- 削除対象のアイテムがここに表示されます -->
+                </div>
+                <div class="delete-actions">
+                    <button id="confirmDelete" class="action-btn danger">選択したアイテムを削除</button>
+                    <button id="cancelDelete" class="action-btn">キャンセル</button>
+                </div>
             </div>
         </main>
 
