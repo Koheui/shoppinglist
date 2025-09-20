@@ -642,33 +642,28 @@ class FirebaseShoppingListApp {
         listContainer.innerHTML = filteredItems.map(item => this.getItemHTML(item)).join('');
     }
 
-    // 日付をフォーマット
+    // アイテムのHTMLを生成（単一チェックボックスで完全削除 + 追加日表示）
+    getItemHTML(item) {
+        const addedDate = this.formatDate(item.createdAt);
+        return `
+            <li class="shopping-item" data-id="${item.id}">
+                <input type="checkbox" class="item-checkbox" 
+                       onchange="app.deleteItem('${item.id}')">
+                <span class="item-text">${this.escapeHtml(item.text)}</span>
+                <span class="item-date">${addedDate}</span>
+            </li>
+        `;
+    }
+
+    // 日付をフォーマット（実際の日付を表示）
     formatDate(dateString) {
         if (!dateString) return '';
         
         const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now - date);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        // 今日の場合
-        if (diffDays === 1) {
-            return '今日';
-        }
-        
-        // 昨日の場合
-        if (diffDays === 2) {
-            return '昨日';
-        }
-        
-        // 1週間以内の場合
-        if (diffDays <= 7) {
-            return `${diffDays - 1}日前`;
-        }
-        
-        // それ以外は日付を表示
+        // 実際の日付を表示（月/日形式）
         return date.toLocaleDateString('ja-JP', {
-            month: 'short',
+            month: 'numeric',
             day: 'numeric'
         });
     }
