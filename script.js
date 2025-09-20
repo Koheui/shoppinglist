@@ -104,12 +104,21 @@ class FirebaseShoppingListApp {
     // 認証状態の監視
     setupAuthStateListener() {
         import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js').then(({ onAuthStateChanged }) => {
-            onAuthStateChanged(this.auth, (user) => {
+            onAuthStateChanged(this.auth, async (user) => {
+                console.log('認証状態が変更されました:', user ? {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                } : 'ログアウト');
+                
                 this.currentUser = user;
                 this.updateAuthUI();
+                
                 if (user) {
-                    this.loadItems();
+                    console.log('ユーザーがログインしました。アイテムを読み込みます...');
+                    await this.loadItems();
                 } else {
+                    console.log('ユーザーがログアウトしました。アイテムをクリアします...');
                     this.items = [];
                     this.render();
                     this.updateStats();
@@ -224,9 +233,15 @@ class FirebaseShoppingListApp {
     // Firestoreからアイテムを読み込み
     async loadItems() {
         if (!this.currentUser) {
+            console.log('ユーザーがログインしていません');
             this.items = [];
             return;
         }
+
+        console.log('Firestoreからアイテムを取得中...', {
+            userId: this.currentUser.uid,
+            userEmail: this.currentUser.email
+        });
 
         try {
             const { collection, query, where, orderBy, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
@@ -236,19 +251,28 @@ class FirebaseShoppingListApp {
                 orderBy('createdAt', 'desc')
             );
             
+            console.log('Firestoreクエリを実行中...');
             const querySnapshot = await getDocs(q);
-            this.items = [];
+            console.log('クエリ結果:', querySnapshot.size, '件のアイテムが見つかりました');
             
+            this.items = [];
             querySnapshot.forEach((doc) => {
                 const item = { id: doc.id, ...doc.data() };
+                console.log('アイテムデータ:', item);
                 this.items.push(item);
             });
             
+            console.log('全アイテム:', this.items);
             this.render();
             this.updateStats();
         } catch (error) {
             console.error('アイテムの読み込みに失敗しました:', error);
-            this.showNotification('アイテムの読み込みに失敗しました', 'error');
+            console.error('エラーの詳細:', {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
+            this.showNotification('アイテムの読み込みに失敗しました: ' + error.message, 'error');
         }
     }
 
