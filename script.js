@@ -7,7 +7,6 @@ class FirebaseShoppingListApp {
         this.db = null;
         this.auth = null;
         this.googleProvider = null;
-        // 削除機能は単一チェックボックスに統一
         this.isAuthenticated = false;
         // 家族共有パスワード（family-config.jsから読み込み）
         this.familyPassword = window.FAMILY_CONFIG ? window.FAMILY_CONFIG.password : 'family2024';
@@ -471,34 +470,38 @@ class FirebaseShoppingListApp {
 
     // toggleItemメソッドは削除済み（完全削除に変更）
 
-    // アイテム削除（リスト化）
+    // アイテム削除（即座に削除）
     async deleteItem(id) {
+        console.log('deleteItemが呼び出されました:', id);
+        
         if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
 
-        // 削除モードを開始
-        this.deleteMode = true;
-        this.selectedItems.clear();
-        this.selectedItems.add(id);
-        this.showDeleteList();
+        const item = this.items.find(item => item.id === id);
+        if (!item) {
+            console.error('削除するアイテムが見つかりません:', id);
+            return;
+        }
+
+        try {
+            console.log('Firestoreからアイテムを削除中...');
+            const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            await deleteDoc(doc(this.db, 'shoppingItems', id));
+            
+            // ローカルの配列から削除
+            this.items = this.items.filter(item => item.id !== id);
+            this.render();
+            this.showNotification('アイテムを削除しました', 'success');
+            console.log('アイテムの削除が完了しました');
+        } catch (error) {
+            console.error('アイテムの削除に失敗しました:', error);
+            this.showNotification('アイテムの削除に失敗しました', 'error');
+        }
     }
 
-    // 削除リストを表示
-    showDeleteList() {
-        const deleteListSection = document.getElementById('deleteListSection');
-        const deleteList = document.getElementById('deleteList');
-        
-        deleteListSection.style.display = 'block';
-        
-        // 削除対象のアイテムを表示
-        const itemsToDelete = this.items.filter(item => this.selectedItems.has(item.id));
-        deleteList.innerHTML = itemsToDelete.map(item => this.getDeleteItemHTML(item)).join('');
-        
-        // スクロールして削除リストを表示
-        deleteListSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    // 不要な削除関連メソッドは削除済み（即座削除に変更）
 
     // 削除アイテムのHTMLを生成
     getDeleteItemHTML(item) {
