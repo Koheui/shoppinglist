@@ -58,6 +58,12 @@ class FirebaseShoppingListApp {
         const loginButton = document.getElementById('loginButton');
         const logoutButton = document.getElementById('logoutButton');
         
+        console.log('認証要素の確認:', {
+            passwordInput: passwordInput,
+            loginButton: loginButton,
+            logoutButton: logoutButton
+        });
+        
         // モーダル関連の要素
         const addItemButton = document.getElementById('addItemButton');
         const addItemModal = document.getElementById('addItemModal');
@@ -67,13 +73,27 @@ class FirebaseShoppingListApp {
         const deleteSelectedButton = document.getElementById('deleteSelectedButton');
 
         // 認証機能
-        loginButton.addEventListener('click', () => this.familyLogin());
-        logoutButton.addEventListener('click', () => this.familyLogout());
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.familyLogin();
-            }
-        });
+        if (loginButton) {
+            loginButton.addEventListener('click', () => this.familyLogin());
+        } else {
+            console.error('loginButtonが見つかりません');
+        }
+        
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => this.familyLogout());
+        } else {
+            console.error('logoutButtonが見つかりません');
+        }
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.familyLogin();
+                }
+            });
+        } else {
+            console.error('passwordInputが見つかりません');
+        }
 
         // モーダル機能
         addItemButton.addEventListener('click', () => this.openAddModal());
@@ -120,16 +140,30 @@ class FirebaseShoppingListApp {
 
     // 家族パスワードでログイン
     familyLogin() {
+        console.log('familyLoginが呼び出されました');
+        
         const passwordInput = document.getElementById('passwordInput');
+        console.log('passwordInput:', passwordInput);
+        
+        if (!passwordInput) {
+            console.error('passwordInputが見つかりません');
+            this.showNotification('パスワード入力欄が見つかりません', 'error');
+            return;
+        }
+        
         const password = passwordInput.value.trim();
+        console.log('入力されたパスワード:', password);
+        console.log('正しいパスワード:', this.familyPassword);
         
         if (password === this.familyPassword) {
+            console.log('パスワードが正しいです。ログインします。');
             this.isAuthenticated = true;
             this.updateAuthUI();
             this.loadItems();
             passwordInput.value = '';
             this.showNotification('ログインしました', 'success');
         } else {
+            console.log('パスワードが間違っています。');
             this.showNotification('パスワードが正しくありません', 'error');
             passwordInput.value = '';
         }
