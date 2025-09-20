@@ -217,6 +217,48 @@ class FirebaseShoppingListApp {
         this.showNotification('ログアウトしました', 'success');
     }
 
+    // モーダルを開く
+    openAddModal() {
+        console.log('openAddModalが呼び出されました');
+        
+        if (!this.isAuthenticated) {
+            this.showNotification('アイテムを追加するにはログインが必要です', 'warning');
+            return;
+        }
+        
+        const modal = document.getElementById('addItemModal');
+        const itemInput = document.getElementById('itemInput');
+        
+        if (modal) {
+            modal.style.display = 'block';
+            if (itemInput) {
+                itemInput.value = '';
+                itemInput.focus();
+            }
+            console.log('モーダルを開きました');
+        } else {
+            console.error('addItemModalが見つかりません');
+        }
+    }
+
+    // モーダルを閉じる
+    closeAddModal() {
+        console.log('closeAddModalが呼び出されました');
+        
+        const modal = document.getElementById('addItemModal');
+        const itemInput = document.getElementById('itemInput');
+        
+        if (modal) {
+            modal.style.display = 'none';
+            if (itemInput) {
+                itemInput.value = '';
+            }
+            console.log('モーダルを閉じました');
+        } else {
+            console.error('addItemModalが見つかりません');
+        }
+    }
+
     // 認証状態の監視（家族共有版）
     setupAuthStateListener() {
         // ローカルストレージから認証状態を復元
