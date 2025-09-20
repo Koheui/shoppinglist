@@ -244,11 +244,12 @@ class FirebaseShoppingListApp {
         });
 
         try {
-            const { collection, query, where, orderBy, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            
+            // 一時的にorderByを削除してインデックスエラーを回避
             const q = query(
                 collection(this.db, 'shoppingItems'),
-                where('userId', '==', this.currentUser.uid),
-                orderBy('createdAt', 'desc')
+                where('userId', '==', this.currentUser.uid)
             );
             
             console.log('Firestoreクエリを実行中...');
@@ -261,6 +262,9 @@ class FirebaseShoppingListApp {
                 console.log('アイテムデータ:', item);
                 this.items.push(item);
             });
+            
+            // クライアント側でソート
+            this.items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             
             console.log('全アイテム:', this.items);
             this.render();
@@ -639,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newItem.id = docRef.id;
             
             this.items.unshift(newItem);
-            this.renderItems();
+            this.render();
             this.updateStats();
             this.showNotification('アイテムが追加されました', 'success');
             this.closeAddModal();
