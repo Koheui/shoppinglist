@@ -1,15 +1,4 @@
 {
-  "appHosting": {
-    "backend": {
-      "service": "shoppinglist-backend"
-    },
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  },
   "hosting": {
     "public": ".",
     "ignore": [
