@@ -38,18 +38,18 @@
 <body>
     <div class="container">
         <header>
-            <!-- 超シンプルな認証セクション -->
+            <!-- 家族共有用の認証セクション -->
             <div id="authSection" class="auth-section">
-                <div id="loginForm" class="auth-form">
-                    <p class="auth-description">スマホからもアクセスするにはログイン</p>
-                    <button id="googleLoginButton" class="google-login-btn">
-                        <span class="google-icon">G</span>
-                        Googleでログイン
-                    </button>
+                <div id="passwordForm" class="auth-form">
+                    <p class="auth-description">家族で共有する買い物リスト</p>
+                    <div class="password-input-group">
+                        <input type="password" id="passwordInput" placeholder="家族パスワードを入力" maxlength="20">
+                        <button id="loginButton" class="login-btn">ログイン</button>
+                    </div>
                 </div>
                 
                 <div id="userInfo" class="user-info" style="display: none;">
-                    <span id="userEmail"></span>
+                    <span id="userEmail">家族メンバー</span>
                     <button id="logoutButton">ログアウト</button>
                 </div>
             </div>

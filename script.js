@@ -8,6 +8,8 @@ class FirebaseShoppingListApp {
         this.auth = null;
         this.googleProvider = null;
         this.selectedItemsForDeletion = new Set();
+        this.isAuthenticated = false;
+        this.familyPassword = 'family2024'; // 家族共有パスワード
         this.init();
     }
 
@@ -51,6 +53,11 @@ class FirebaseShoppingListApp {
         const confirmDelete = document.getElementById('confirmDelete');
         const cancelDelete = document.getElementById('cancelDelete');
 
+        // 認証関連の要素
+        const passwordInput = document.getElementById('passwordInput');
+        const loginButton = document.getElementById('loginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        
         // モーダル関連の要素
         const addItemButton = document.getElementById('addItemButton');
         const addItemModal = document.getElementById('addItemModal');
@@ -58,6 +65,15 @@ class FirebaseShoppingListApp {
         const cancelAdd = document.getElementById('cancelAdd');
         const confirmAdd = document.getElementById('confirmAdd');
         const deleteSelectedButton = document.getElementById('deleteSelectedButton');
+
+        // 認証機能
+        loginButton.addEventListener('click', () => this.familyLogin());
+        logoutButton.addEventListener('click', () => this.familyLogout());
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.familyLogin();
+            }
+        });
 
         // モーダル機能
         addItemButton.addEventListener('click', () => this.openAddModal());
@@ -102,48 +118,60 @@ class FirebaseShoppingListApp {
         cancelDelete.addEventListener('click', () => this.cancelBulkDelete());
     }
 
-    // 認証状態の監視
-    setupAuthStateListener() {
-        import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js').then(({ onAuthStateChanged }) => {
-            onAuthStateChanged(this.auth, async (user) => {
-                console.log('認証状態が変更されました:', user ? {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName
-                } : 'ログアウト');
-                
-                this.currentUser = user;
-                this.updateAuthUI();
-                
-                if (user) {
-                    console.log('ユーザーがログインしました。アイテムを読み込みます...');
-                    await this.loadItems();
-                } else {
-                    console.log('ユーザーがログアウトしました。アイテムをクリアします...');
-                    this.items = [];
-                    this.render();
-                    this.updateStats();
-                }
-            });
-        });
+    // 家族パスワードでログイン
+    familyLogin() {
+        const passwordInput = document.getElementById('passwordInput');
+        const password = passwordInput.value.trim();
+        
+        if (password === this.familyPassword) {
+            this.isAuthenticated = true;
+            this.updateAuthUI();
+            this.loadItems();
+            passwordInput.value = '';
+            this.showNotification('ログインしました', 'success');
+        } else {
+            this.showNotification('パスワードが正しくありません', 'error');
+            passwordInput.value = '';
+        }
     }
 
-    // 認証UIの更新
+    // 家族認証からログアウト
+    familyLogout() {
+        this.isAuthenticated = false;
+        this.items = [];
+        this.selectedItemsForDeletion.clear();
+        this.updateAuthUI();
+        this.render();
+        this.showNotification('ログアウトしました', 'success');
+    }
+
+    // 認証状態の監視（家族共有版）
+    setupAuthStateListener() {
+        // ローカルストレージから認証状態を復元
+        const savedAuth = localStorage.getItem('familyAuth');
+        if (savedAuth === 'true') {
+            this.isAuthenticated = true;
+            this.updateAuthUI();
+            this.loadItems();
+        }
+    }
+
+    // 認証UIの更新（家族共有版）
     updateAuthUI() {
-        const loginForm = document.getElementById('loginForm');
+        const passwordForm = document.getElementById('passwordForm');
         const userInfo = document.getElementById('userInfo');
-        const userEmail = document.getElementById('userEmail');
         const authSection = document.getElementById('authSection');
 
-        if (this.currentUser) {
-            loginForm.style.display = 'none';
+        if (this.isAuthenticated) {
+            passwordForm.style.display = 'none';
             userInfo.style.display = 'flex';
-            userEmail.textContent = this.currentUser.email;
             authSection.classList.add('logged-in');
+            localStorage.setItem('familyAuth', 'true');
         } else {
-            loginForm.style.display = 'block';
+            passwordForm.style.display = 'block';
             userInfo.style.display = 'none';
             authSection.classList.remove('logged-in');
+            localStorage.removeItem('familyAuth');
         }
     }
 
@@ -187,7 +215,7 @@ class FirebaseShoppingListApp {
 
     // アイテム追加
     async addItem() {
-        if (!this.currentUser) {
+        if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
@@ -209,7 +237,7 @@ class FirebaseShoppingListApp {
             text: text,
             completed: false,
             createdAt: new Date().toISOString(),
-            userId: this.currentUser.uid
+            familyId: 'family' // 家族共有用の固定ID
         };
 
         try {
@@ -231,26 +259,23 @@ class FirebaseShoppingListApp {
         }
     }
 
-    // Firestoreからアイテムを読み込み
+    // Firestoreからアイテムを読み込み（家族共有版）
     async loadItems() {
-        if (!this.currentUser) {
-            console.log('ユーザーがログインしていません');
+        if (!this.isAuthenticated) {
+            console.log('認証されていません');
             this.items = [];
             return;
         }
 
-        console.log('Firestoreからアイテムを取得中...', {
-            userId: this.currentUser.uid,
-            userEmail: this.currentUser.email
-        });
+        console.log('Firestoreからアイテムを取得中...');
 
         try {
-            const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const { collection, query, orderBy, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
             
-            // 一時的にorderByを削除してインデックスエラーを回避
+            // 家族共有のため、すべてのアイテムを取得
             const q = query(
                 collection(this.db, 'shoppingItems'),
-                where('userId', '==', this.currentUser.uid)
+                orderBy('createdAt', 'desc')
             );
             
             console.log('Firestoreクエリを実行中...');
@@ -263,9 +288,6 @@ class FirebaseShoppingListApp {
                 console.log('アイテムデータ:', item);
                 this.items.push(item);
             });
-            
-            // クライアント側でソート
-            this.items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             
             console.log('全アイテム:', this.items);
             this.render();
@@ -283,7 +305,7 @@ class FirebaseShoppingListApp {
 
     // アイテムの完了状態を切り替え
     async toggleItem(id) {
-        if (!this.currentUser) {
+        if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
@@ -308,7 +330,7 @@ class FirebaseShoppingListApp {
 
     // アイテム削除（リスト化）
     async deleteItem(id) {
-        if (!this.currentUser) {
+        if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
@@ -424,7 +446,7 @@ class FirebaseShoppingListApp {
 
     // 購入済みアイテムをクリア（リスト化）
     clearCompleted() {
-        if (!this.currentUser) {
+        if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
@@ -444,7 +466,7 @@ class FirebaseShoppingListApp {
 
     // すべてのアイテムをクリア（リスト化）
     clearAll() {
-        if (!this.currentUser) {
+        if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
@@ -677,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (!this.currentUser) {
+        if (!this.isAuthenticated) {
             this.showNotification('ログインが必要です', 'warning');
             return;
         }
@@ -691,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
             text: text,
             completed: false,
             createdAt: new Date().toISOString(),
-            userId: this.currentUser.uid
+            familyId: 'family' // 家族共有用の固定ID
         };
 
         try {
