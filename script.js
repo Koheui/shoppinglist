@@ -52,11 +52,32 @@ class FirebaseShoppingListApp {
         const confirmDelete = document.getElementById('confirmDelete');
         const cancelDelete = document.getElementById('cancelDelete');
 
-        // アイテム追加
-        addButton.addEventListener('click', () => this.addItem());
+        // モーダル関連の要素
+        const addItemButton = document.getElementById('addItemButton');
+        const deleteItemsButton = document.getElementById('deleteItemsButton');
+        const addItemModal = document.getElementById('addItemModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelAdd = document.getElementById('cancelAdd');
+        const confirmAdd = document.getElementById('confirmAdd');
+
+        // モーダル機能
+        addItemButton.addEventListener('click', () => this.openAddModal());
+        deleteItemsButton.addEventListener('click', () => this.showDeleteList());
+        closeModal.addEventListener('click', () => this.closeAddModal());
+        cancelAdd.addEventListener('click', () => this.closeAddModal());
+        confirmAdd.addEventListener('click', () => this.addItemFromModal());
+        
+        // モーダル外をクリックで閉じる
+        addItemModal.addEventListener('click', (e) => {
+            if (e.target === addItemModal) {
+                this.closeAddModal();
+            }
+        });
+
+        // Enter キーで追加
         itemInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                this.addItem();
+                this.addItemFromModal();
             }
         });
 
@@ -539,20 +560,87 @@ class FirebaseShoppingListApp {
 let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new FirebaseShoppingListApp();
+    
+    // モーダル機能を拡張
+    // モーダルを開く
+    app.openAddModal = function() {
+        if (!this.currentUser) {
+            this.showNotification('アイテムを追加するにはログインが必要です', 'warning');
+            return;
+        }
+        
+        const modal = document.getElementById('addItemModal');
+        const input = document.getElementById('itemInput');
+        modal.style.display = 'block';
+        input.focus();
+        input.value = '';
+    };
+
+    // モーダルを閉じる
+    app.closeAddModal = function() {
+        const modal = document.getElementById('addItemModal');
+        modal.style.display = 'none';
+    };
+
+    // モーダルからアイテム追加
+    app.addItemFromModal = async function() {
+        const input = document.getElementById('itemInput');
+        const text = input.value.trim();
+
+        if (text === '') {
+            this.showNotification('アイテム名を入力してください', 'warning');
+            return;
+        }
+
+        if (!this.currentUser) {
+            this.showNotification('ログインが必要です', 'warning');
+            return;
+        }
+
+        if (this.items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
+            this.showNotification('このアイテムは既にリストにあります', 'warning');
+            return;
+        }
+
+        const newItem = {
+            text: text,
+            completed: false,
+            createdAt: new Date().toISOString(),
+            userId: this.currentUser.uid
+        };
+
+        try {
+            const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const docRef = await addDoc(collection(this.db, 'shoppingItems'), newItem);
+            newItem.id = docRef.id;
+            
+            this.items.unshift(newItem);
+            this.renderItems();
+            this.updateStats();
+            this.showNotification('アイテムが追加されました', 'success');
+            this.closeAddModal();
+        } catch (error) {
+            console.error('アイテムの追加に失敗しました:', error);
+            this.showNotification('アイテムの追加に失敗しました', 'error');
+        }
+    };
 });
 
 // キーボードショートカット
 document.addEventListener('keydown', (e) => {
-    // Ctrl/Cmd + Enter でアイテム追加
+    // Ctrl/Cmd + Enter でモーダルを開く
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        app.addItem();
+        if (app && app.openAddModal) {
+            app.openAddModal();
+        }
     }
     
-    // Escape で入力フィールドをクリア
+    // Escape でモーダルを閉じる
     if (e.key === 'Escape') {
-        const input = document.getElementById('itemInput');
-        input.value = '';
-        input.blur();
+        const modal = document.getElementById('addItemModal');
+        if (modal && modal.style.display === 'block' && app && app.closeAddModal) {
+            app.closeAddModal();
+        }
     }
 });
 

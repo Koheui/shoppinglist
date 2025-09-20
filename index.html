@@ -58,11 +58,18 @@
         <main>
             <div class="main-header">
                 <h1>🛒 買い物リスト</h1>
-                <p class="subtitle">買い忘れを防ぐためのアプリ</p>
             </div>
-            <div class="add-item-section">
-                <input type="text" id="itemInput" placeholder="買い物アイテムを入力してください..." maxlength="50">
-                <button id="addButton">追加</button>
+            
+            <!-- アクションボタン -->
+            <div class="action-buttons">
+                <button id="addItemButton" class="action-btn add-btn">
+                    <span class="btn-icon">+</span>
+                    追加
+                </button>
+                <button id="deleteItemsButton" class="action-btn delete-btn">
+                    <span class="btn-icon">🗑️</span>
+                    削除
+                </button>
             </div>
 
             <div class="filter-section">
@@ -98,6 +105,23 @@
                 </div>
             </div>
         </main>
+
+        <!-- 追加モーダル -->
+        <div id="addItemModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>新しいアイテムを追加</h3>
+                    <button id="closeModal" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="itemInput" placeholder="買い物アイテムを入力してください..." maxlength="50">
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelAdd" class="btn btn-secondary">キャンセル</button>
+                    <button id="confirmAdd" class="btn btn-primary">追加</button>
+                </div>
+            </div>
+        </div>
 
         <footer>
             <p>買い忘れを防いで、効率的な買い物を！</p>
