@@ -48,8 +48,6 @@ class FirebaseShoppingListApp {
         const clearAll = document.getElementById('clearAll');
         const filterButtons = document.querySelectorAll('.filter-btn');
         const googleLoginButton = document.getElementById('googleLoginButton');
-        const loginButton = document.getElementById('loginButton');
-        const signupButton = document.getElementById('signupButton');
         const logoutButton = document.getElementById('logoutButton');
         const confirmDelete = document.getElementById('confirmDelete');
         const cancelDelete = document.getElementById('cancelDelete');
@@ -75,8 +73,6 @@ class FirebaseShoppingListApp {
 
         // 認証ボタン
         googleLoginButton.addEventListener('click', () => this.googleLogin());
-        loginButton.addEventListener('click', () => this.login());
-        signupButton.addEventListener('click', () => this.signup());
         logoutButton.addEventListener('click', () => this.logout());
 
         // 削除リストボタン
@@ -133,50 +129,6 @@ class FirebaseShoppingListApp {
         }
     }
 
-    // メール/パスワードログイン
-    async login() {
-        const email = document.getElementById('emailInput').value;
-        const password = document.getElementById('passwordInput').value;
-
-        if (!email || !password) {
-            this.showNotification('メールアドレスとパスワードを入力してください', 'warning');
-            return;
-        }
-
-        try {
-            const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-            await signInWithEmailAndPassword(this.auth, email, password);
-            this.showNotification('ログインしました', 'success');
-            this.clearAuthInputs();
-        } catch (error) {
-            this.showNotification(this.getAuthErrorMessage(error.code), 'error');
-        }
-    }
-
-    // 新規登録
-    async signup() {
-        const email = document.getElementById('emailInput').value;
-        const password = document.getElementById('passwordInput').value;
-
-        if (!email || !password) {
-            this.showNotification('メールアドレスとパスワードを入力してください', 'warning');
-            return;
-        }
-
-        if (password.length < 6) {
-            this.showNotification('パスワードは6文字以上で入力してください', 'warning');
-            return;
-        }
-
-        try {
-            const { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-            await createUserWithEmailAndPassword(this.auth, email, password);
-            this.showNotification('アカウントを作成しました', 'success');
-            this.clearAuthInputs();
-        } catch (error) {
-            this.showNotification(this.getAuthErrorMessage(error.code), 'error');
-        }
-    }
 
     // ログアウト
     async logout() {
@@ -189,21 +141,10 @@ class FirebaseShoppingListApp {
         }
     }
 
-    // 認証入力フィールドをクリア
-    clearAuthInputs() {
-        document.getElementById('emailInput').value = '';
-        document.getElementById('passwordInput').value = '';
-    }
 
     // 認証エラーメッセージの取得
     getAuthErrorMessage(errorCode) {
         const messages = {
-            'auth/user-not-found': 'ユーザーが見つかりません',
-            'auth/wrong-password': 'パスワードが間違っています',
-            'auth/email-already-in-use': 'このメールアドレスは既に使用されています',
-            'auth/weak-password': 'パスワードが弱すぎます',
-            'auth/invalid-email': '無効なメールアドレスです',
-            'auth/too-many-requests': 'リクエストが多すぎます。しばらく待ってから再試行してください',
             'auth/popup-closed-by-user': 'ログインがキャンセルされました',
             'auth/popup-blocked': 'ポップアップがブロックされました。ブラウザの設定を確認してください'
         };
@@ -497,9 +438,8 @@ class FirebaseShoppingListApp {
         if (!this.currentUser) {
             return `
                 <div class="empty-state">
-                    <h3>🔐 ログインしてデータを保存</h3>
-                    <p>買い物リストを使用するには、まずログインしてください。<br>
-                    Googleアカウントで簡単にログインできます！</p>
+                    <h3>🔐 スマホからもアクセス</h3>
+                    <p>スマートフォンからもアクセスするには、Googleでログインしてください。</p>
                 </div>
             `;
         }

@@ -44,14 +44,14 @@ header h1 {
     font-size: 1.1rem;
 }
 
-/* 認証セクション（控えめ） */
+/* 認証セクション（超シンプル） */
 .auth-section {
-    margin-top: 15px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .auth-form {
@@ -60,28 +60,28 @@ header h1 {
 
 .auth-description {
     color: #718096;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
 }
 
-/* Googleログインボタン（控えめ） */
+/* Googleログインボタン（超シンプル） */
 .google-login-btn {
     width: 100%;
-    max-width: 250px;
-    padding: 10px 15px;
+    max-width: 200px;
+    padding: 8px 12px;
     background: #4285f4;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     transition: all 0.3s ease;
-    margin: 0 auto 15px;
+    margin: 0 auto;
 }
 
 .google-login-btn:hover {
@@ -91,8 +91,8 @@ header h1 {
 }
 
 .google-icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     background: white;
     color: #4285f4;
     border-radius: 50%;
@@ -100,95 +100,35 @@ header h1 {
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
 }
 
-/* メール認証（控えめ） */
-.email-auth {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-}
 
-.email-auth input {
-    width: 100%;
-    max-width: 250px;
-    padding: 8px 12px;
-    margin: 0 auto;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    transition: border-color 0.3s ease;
-}
-
-.email-auth input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.auth-buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 8px;
-}
-
-.auth-buttons button {
-    padding: 6px 12px;
-    border: 1px solid #667eea;
-    background: #667eea;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-    flex: 1;
-    max-width: 100px;
-}
-
-.auth-buttons button:hover {
-    background: #5a67d8;
-    transform: translateY(-2px);
-}
-
-.auth-buttons button:last-child {
-    background: transparent;
-    color: #667eea;
-}
-
-.auth-buttons button:last-child:hover {
-    background: #667eea;
-    color: white;
-}
-
-/* ユーザー情報（控えめ） */
+/* ユーザー情報（超シンプル） */
 .user-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .user-info span {
     color: #4a5568;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .user-info button {
-    padding: 6px 12px;
+    padding: 4px 8px;
     border: 1px solid #fed7d7;
     background: transparent;
     color: #c53030;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 500;
     transition: all 0.3s ease;
 }
@@ -302,26 +242,17 @@ header h1 {
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .auth-section {
-        padding: 12px;
+        padding: 8px;
     }
     
     .google-login-btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-    }
-    
-    .auth-buttons {
-        flex-direction: column;
-        gap: 6px;
-    }
-    
-    .auth-buttons button {
-        max-width: none;
+        padding: 6px 10px;
+        font-size: 0.8rem;
     }
     
     .user-info {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         text-align: center;
     }
     
