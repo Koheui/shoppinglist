@@ -747,3 +747,93 @@ footer {
     background: linear-gradient(135deg, #3182ce, #2c5282);
     transform: translateY(-1px);
 }
+
+/* 横長の追加ボタン */
+.horizontal-add-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 24px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2);
+}
+
+.horizontal-add-btn:hover {
+    background: linear-gradient(135deg, #38a169, #2f855a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.3);
+}
+
+.horizontal-add-btn .btn-icon {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+/* 削除ボタンコンテナ */
+.delete-button-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.delete-selected-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #e2e8f0;
+    color: #718096;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.delete-selected-btn.active {
+    background: linear-gradient(135deg, #f56565, #e53e3e);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+}
+
+.delete-selected-btn.active:hover {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 101, 101, 0.4);
+}
+
+.delete-selected-btn .btn-icon {
+    font-size: 1.2rem;
+}
+
+/* アイテムチェックボックス */
+.delete-checkbox {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.shopping-item.selected {
+    background-color: rgba(245, 101, 101, 0.1);
+    border-left: 4px solid #f56565;
+}
+
+.shopping-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}

@@ -58,51 +58,24 @@
         <main>
             <div class="main-header">
                 <h1>🛒 買い物リスト</h1>
-            </div>
-            
-            <!-- アクションボタン -->
-            <div class="action-buttons">
-                <button id="addItemButton" class="action-btn add-btn">
+                
+                <!-- 横長の追加ボタン -->
+                <button id="addItemButton" class="horizontal-add-btn">
                     <span class="btn-icon">+</span>
-                    追加
+                    新しいアイテムを追加
                 </button>
-                <button id="deleteItemsButton" class="action-btn delete-btn">
-                    <span class="btn-icon">🗑️</span>
-                    削除
-                </button>
-            </div>
-
-            <div class="filter-section">
-                <button class="filter-btn active" data-filter="all">すべて</button>
-                <button class="filter-btn" data-filter="pending">未購入</button>
-                <button class="filter-btn" data-filter="completed">購入済み</button>
-            </div>
-
-            <div class="stats">
-                <span id="totalItems">合計: 0</span>
-                <span id="pendingItems">未購入: 0</span>
-                <span id="completedItems">購入済み: 0</span>
             </div>
 
             <ul id="shoppingList" class="shopping-list">
                 <!-- アイテムがここに動的に追加されます -->
             </ul>
-
-            <div class="actions">
-                <button id="clearCompleted" class="action-btn">購入済みを削除</button>
-                <button id="clearAll" class="action-btn danger">すべて削除</button>
-            </div>
-
-            <!-- 削除リストセクション -->
-            <div id="deleteListSection" class="delete-list-section" style="display: none;">
-                <h3>削除するアイテムを選択</h3>
-                <div id="deleteList" class="delete-list">
-                    <!-- 削除対象のアイテムがここに表示されます -->
-                </div>
-                <div class="delete-actions">
-                    <button id="confirmDelete" class="action-btn danger">選択したアイテムを削除</button>
-                    <button id="cancelDelete" class="action-btn">キャンセル</button>
-                </div>
+            
+            <!-- 削除ボタン（選択されたアイテムがある時のみ表示） -->
+            <div id="deleteButtonContainer" class="delete-button-container" style="display: none;">
+                <button id="deleteSelectedButton" class="delete-selected-btn">
+                    <span class="btn-icon">🗑️</span>
+                    選択したアイテムを削除
+                </button>
             </div>
         </main>
 
