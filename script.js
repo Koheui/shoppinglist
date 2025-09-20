@@ -64,6 +64,15 @@ class FirebaseShoppingListApp {
         const cancelAdd = document.getElementById('cancelAdd');
         const confirmAdd = document.getElementById('confirmAdd');
         const deleteSelectedButton = document.getElementById('deleteSelectedButton');
+        
+        console.log('モーダル要素の確認:', {
+            addItemButton: addItemButton,
+            addItemModal: addItemModal,
+            closeModal: closeModal,
+            cancelAdd: cancelAdd,
+            confirmAdd: confirmAdd,
+            deleteSelectedButton: deleteSelectedButton
+        });
 
         // 認証機能
         if (loginButton) {
@@ -89,20 +98,47 @@ class FirebaseShoppingListApp {
         }
 
         // モーダル機能
-        addItemButton.addEventListener('click', () => this.openAddModal());
-        closeModal.addEventListener('click', () => this.closeAddModal());
-        cancelAdd.addEventListener('click', () => this.closeAddModal());
-        confirmAdd.addEventListener('click', () => this.addItemFromModal());
+        if (addItemButton) {
+            addItemButton.addEventListener('click', () => this.openAddModal());
+        } else {
+            console.error('addItemButtonが見つかりません');
+        }
+        
+        if (closeModal) {
+            closeModal.addEventListener('click', () => this.closeAddModal());
+        } else {
+            console.error('closeModalが見つかりません');
+        }
+        
+        if (cancelAdd) {
+            cancelAdd.addEventListener('click', () => this.closeAddModal());
+        } else {
+            console.error('cancelAddが見つかりません');
+        }
+        
+        if (confirmAdd) {
+            confirmAdd.addEventListener('click', () => this.addItemFromModal());
+        } else {
+            console.error('confirmAddが見つかりません');
+        }
         
         // 削除機能
-        deleteSelectedButton.addEventListener('click', () => this.deleteSelectedItems());
+        if (deleteSelectedButton) {
+            deleteSelectedButton.addEventListener('click', () => this.deleteSelectedItems());
+        } else {
+            console.error('deleteSelectedButtonが見つかりません');
+        }
         
         // モーダル外をクリックで閉じる
-        addItemModal.addEventListener('click', (e) => {
-            if (e.target === addItemModal) {
-                this.closeAddModal();
-            }
-        });
+        if (addItemModal) {
+            addItemModal.addEventListener('click', (e) => {
+                if (e.target === addItemModal) {
+                    this.closeAddModal();
+                }
+            });
+        } else {
+            console.error('addItemModalが見つかりません');
+        }
 
         // 古いイベントリスナーは削除済み - 家族認証のみ使用
     }
@@ -669,7 +705,10 @@ class FirebaseShoppingListApp {
 // アプリケーションの初期化
 let app;
 document.addEventListener('DOMContentLoaded', () => {
-    app = new FirebaseShoppingListApp();
+    // DOM要素が完全に読み込まれるまで少し待機
+    setTimeout(() => {
+        app = new FirebaseShoppingListApp();
+    }, 100);
     
     // モーダル機能を拡張
     // モーダルを開く
