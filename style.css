@@ -817,18 +817,7 @@ footer {
     font-size: 1.2rem;
 }
 
-/* アイテムチェックボックス */
-.delete-checkbox {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.shopping-item.selected {
-    background-color: rgba(245, 101, 101, 0.1);
-    border-left: 4px solid #f56565;
-}
+/* 不要な削除チェックボックススタイルは削除済み */
 
 .shopping-item {
     display: flex;

@@ -469,30 +469,7 @@ class FirebaseShoppingListApp {
         }
     }
 
-    // アイテムの完了状態を切り替え
-    async toggleItem(id) {
-        if (!this.isAuthenticated) {
-            this.showNotification('ログインが必要です', 'warning');
-            return;
-        }
-
-        const item = this.items.find(item => item.id === id);
-        if (!item) return;
-
-        try {
-            const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            await updateDoc(doc(this.db, 'shoppingItems', id), {
-                completed: !item.completed
-            });
-            
-            item.completed = !item.completed;
-            this.render();
-            this.updateStats();
-        } catch (error) {
-            console.error('アイテムの更新に失敗しました:', error);
-            this.showNotification('アイテムの更新に失敗しました', 'error');
-        }
-    }
+    // toggleItemメソッドは削除済み（完全削除に変更）
 
     // アイテム削除（リスト化）
     async deleteItem(id) {
@@ -662,7 +639,7 @@ class FirebaseShoppingListApp {
         listContainer.innerHTML = filteredItems.map(item => this.getItemHTML(item)).join('');
     }
 
-    // アイテムのHTMLを生成
+    // アイテムのHTMLを生成（単一チェックボックスで完全削除）
     getItemHTML(item) {
         return `
             <li class="shopping-item" data-id="${item.id}">
