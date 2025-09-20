@@ -870,26 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
     
-    // モーダル機能を拡張
-    // モーダルを開く
-    app.openAddModal = function() {
-        if (!this.currentUser) {
-            this.showNotification('アイテムを追加するにはログインが必要です', 'warning');
-            return;
-        }
-        
-        const modal = document.getElementById('addItemModal');
-        const input = document.getElementById('itemInput');
-        modal.style.display = 'block';
-        input.focus();
-        input.value = '';
-    };
-
-    // モーダルを閉じる
-    app.closeAddModal = function() {
-        const modal = document.getElementById('addItemModal');
-        modal.style.display = 'none';
-    };
+    // モーダル機能はクラス内で実装済み
 
     // モーダルからアイテム追加（クラス内に移動済み）
 
@@ -897,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('keydown', (e) => {
     // Ctrl/Cmd + Enter でモーダルを開く
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        if (app && app.openAddModal) {
+        if (app && typeof app.openAddModal === 'function') {
             app.openAddModal();
         }
     }
@@ -905,7 +886,7 @@ document.addEventListener('keydown', (e) => {
     // Escape でモーダルを閉じる
     if (e.key === 'Escape') {
         const modal = document.getElementById('addItemModal');
-        if (modal && modal.style.display === 'block' && app && app.closeAddModal) {
+        if (modal && modal.style.display === 'block' && app && typeof app.closeAddModal === 'function') {
             app.closeAddModal();
         }
     }
