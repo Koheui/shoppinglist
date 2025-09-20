@@ -259,6 +259,59 @@ class FirebaseShoppingListApp {
         }
     }
 
+    // モーダルからアイテム追加
+    async addItemFromModal() {
+        console.log('addItemFromModalが呼び出されました');
+        
+        const input = document.getElementById('itemInput');
+        if (!input) {
+            console.error('itemInputが見つかりません');
+            this.showNotification('入力欄が見つかりません', 'error');
+            return;
+        }
+        
+        const text = input.value.trim();
+
+        if (text === '') {
+            this.showNotification('アイテム名を入力してください', 'warning');
+            return;
+        }
+
+        if (!this.isAuthenticated) {
+            this.showNotification('ログインが必要です', 'warning');
+            return;
+        }
+
+        if (this.items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
+            this.showNotification('このアイテムは既にリストにあります', 'warning');
+            return;
+        }
+
+        const newItem = {
+            text: text,
+            completed: false,
+            createdAt: new Date().toISOString(),
+            familyId: 'family' // 家族共有用の固定ID
+        };
+
+        try {
+            console.log('Firestoreにアイテムを追加中...');
+            const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const docRef = await addDoc(collection(this.db, 'shoppingItems'), newItem);
+            newItem.id = docRef.id;
+            
+            this.items.unshift(newItem);
+            this.render();
+            this.updateStats();
+            this.showNotification('アイテムが追加されました', 'success');
+            this.closeAddModal();
+            console.log('アイテムの追加が完了しました');
+        } catch (error) {
+            console.error('アイテムの追加に失敗しました:', error);
+            this.showNotification('アイテムの追加に失敗しました', 'error');
+        }
+    }
+
     // 認証状態の監視（家族共有版）
     setupAuthStateListener() {
         // ローカルストレージから認証状態を復元
@@ -838,53 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'none';
     };
 
-    // モーダルからアイテム追加
-    app.addItemFromModal = async function() {
-        const input = document.getElementById('itemInput');
-        if (!input) {
-            console.error('itemInputが見つかりません');
-            return;
-        }
-        
-        const text = input.value.trim();
-
-        if (text === '') {
-            this.showNotification('アイテム名を入力してください', 'warning');
-            return;
-        }
-
-        if (!this.isAuthenticated) {
-            this.showNotification('ログインが必要です', 'warning');
-            return;
-        }
-
-        if (this.items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
-            this.showNotification('このアイテムは既にリストにあります', 'warning');
-            return;
-        }
-
-        const newItem = {
-            text: text,
-            completed: false,
-            createdAt: new Date().toISOString(),
-            familyId: 'family' // 家族共有用の固定ID
-        };
-
-        try {
-            const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            const docRef = await addDoc(collection(this.db, 'shoppingItems'), newItem);
-            newItem.id = docRef.id;
-            
-            this.items.unshift(newItem);
-            this.render();
-            this.updateStats();
-            this.showNotification('アイテムが追加されました', 'success');
-            this.closeAddModal();
-        } catch (error) {
-            console.error('アイテムの追加に失敗しました:', error);
-            this.showNotification('アイテムの追加に失敗しました', 'error');
-        }
-    };
+    // モーダルからアイテム追加（クラス内に移動済み）
 
 // キーボードショートカット
 document.addEventListener('keydown', (e) => {
