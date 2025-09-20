@@ -9,7 +9,8 @@ class FirebaseShoppingListApp {
         this.googleProvider = null;
         this.selectedItemsForDeletion = new Set();
         this.isAuthenticated = false;
-        this.familyPassword = 'family2024'; // 家族共有パスワード
+        // 家族共有パスワード（family-config.jsから読み込み）
+        this.familyPassword = window.FAMILY_CONFIG ? window.FAMILY_CONFIG.password : 'family2024';
         this.init();
     }
 
@@ -43,15 +44,7 @@ class FirebaseShoppingListApp {
 
     // イベントリスナーの設定
     bindEvents() {
-        const addButton = document.getElementById('addButton');
-        const itemInput = document.getElementById('itemInput');
-        const clearCompleted = document.getElementById('clearCompleted');
-        const clearAll = document.getElementById('clearAll');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const googleLoginButton = document.getElementById('googleLoginButton');
-        const logoutButton = document.getElementById('logoutButton');
-        const confirmDelete = document.getElementById('confirmDelete');
-        const cancelDelete = document.getElementById('cancelDelete');
+        // 古い要素は削除済み - 家族認証のみ使用
 
         // 認証関連の要素
         const passwordInput = document.getElementById('passwordInput');
@@ -111,31 +104,7 @@ class FirebaseShoppingListApp {
             }
         });
 
-        // Enter キーで追加
-        itemInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.addItemFromModal();
-            }
-        });
-
-        // フィルターボタン
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.setFilter(e.target.dataset.filter);
-            });
-        });
-
-        // クリアボタン
-        clearCompleted.addEventListener('click', () => this.clearCompleted());
-        clearAll.addEventListener('click', () => this.clearAll());
-
-        // 認証ボタン
-        googleLoginButton.addEventListener('click', () => this.googleLogin());
-        logoutButton.addEventListener('click', () => this.logout());
-
-        // 削除リストボタン
-        confirmDelete.addEventListener('click', () => this.confirmBulkDelete());
-        cancelDelete.addEventListener('click', () => this.cancelBulkDelete());
+        // 古いイベントリスナーは削除済み - 家族認証のみ使用
     }
 
     // 家族パスワードでログイン
