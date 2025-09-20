@@ -642,15 +642,35 @@ class FirebaseShoppingListApp {
         listContainer.innerHTML = filteredItems.map(item => this.getItemHTML(item)).join('');
     }
 
-    // アイテムのHTMLを生成（単一チェックボックスで完全削除）
-    getItemHTML(item) {
-        return `
-            <li class="shopping-item" data-id="${item.id}">
-                <input type="checkbox" class="item-checkbox" 
-                       onchange="app.deleteItem('${item.id}')">
-                <span class="item-text">${this.escapeHtml(item.text)}</span>
-            </li>
-        `;
+    // 日付をフォーマット
+    formatDate(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // 今日の場合
+        if (diffDays === 1) {
+            return '今日';
+        }
+        
+        // 昨日の場合
+        if (diffDays === 2) {
+            return '昨日';
+        }
+        
+        // 1週間以内の場合
+        if (diffDays <= 7) {
+            return `${diffDays - 1}日前`;
+        }
+        
+        // それ以外は日付を表示
+        return date.toLocaleDateString('ja-JP', {
+            month: 'short',
+            day: 'numeric'
+        });
     }
 
     // 空の状態のHTMLを生成

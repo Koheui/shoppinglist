@@ -817,7 +817,14 @@ footer {
     font-size: 1.2rem;
 }
 
-/* 不要な削除チェックボックススタイルは削除済み */
+/* アイテムの日付表示 */
+.item-date {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-left: auto;
+    font-weight: 400;
+    opacity: 0.8;
+}
 
 .shopping-item {
     display: flex;
