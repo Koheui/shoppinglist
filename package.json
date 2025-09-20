@@ -1,0 +1,29 @@
+{
+  "name": "shoppinglist",
+  "version": "1.0.0",
+  "description": "買い忘れを防ぐためのFirebase統合Webアプリケーション",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "dev": "python3 -m http.server 3000",
+    "build": "echo 'Static site - no build required'",
+    "serve": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "shopping",
+    "list",
+    "firebase",
+    "webapp",
+    "todo"
+  ],
+  "author": "Koheui",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Koheui/shoppinglist.git"
+  },
+  "homepage": "https://github.com/Koheui/shoppinglist#readme"
+}

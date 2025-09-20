@@ -1,0 +1,7 @@
+runConfig:
+  runtime: nodejs22
+  env:
+    - variable: NODE_ENV
+      value: production
+  buildCommand: echo "Static site - no build required"
+  startCommand: python3 -m http.server 8080
