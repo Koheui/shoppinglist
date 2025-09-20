@@ -102,14 +102,17 @@ class FirebaseShoppingListApp {
         const loginForm = document.getElementById('loginForm');
         const userInfo = document.getElementById('userInfo');
         const userEmail = document.getElementById('userEmail');
+        const authSection = document.getElementById('authSection');
 
         if (this.currentUser) {
             loginForm.style.display = 'none';
             userInfo.style.display = 'flex';
             userEmail.textContent = this.currentUser.email;
+            authSection.classList.add('logged-in');
         } else {
             loginForm.style.display = 'block';
             userInfo.style.display = 'none';
+            authSection.classList.remove('logged-in');
         }
     }
 
