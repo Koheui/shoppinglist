@@ -713,49 +713,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'none';
     };
 
-    // モーダルからアイテム追加
-    app.addItemFromModal = async function() {
-        const input = document.getElementById('itemInput');
-        const text = input.value.trim();
-
-        if (text === '') {
-            this.showNotification('アイテム名を入力してください', 'warning');
-            return;
-        }
-
-        if (!this.isAuthenticated) {
-            this.showNotification('ログインが必要です', 'warning');
-            return;
-        }
-
-        if (this.items.some(item => item.text.toLowerCase() === text.toLowerCase())) {
-            this.showNotification('このアイテムは既にリストにあります', 'warning');
-            return;
-        }
-
-        const newItem = {
-            text: text,
-            completed: false,
-            createdAt: new Date().toISOString(),
-            familyId: 'family' // 家族共有用の固定ID
-        };
-
-        try {
-            const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            const docRef = await addDoc(collection(this.db, 'shoppingItems'), newItem);
-            newItem.id = docRef.id;
-            
-            this.items.unshift(newItem);
-            this.render();
-            this.updateStats();
-            this.showNotification('アイテムが追加されました', 'success');
-            this.closeAddModal();
-        } catch (error) {
-            console.error('アイテムの追加に失敗しました:', error);
-            this.showNotification('アイテムの追加に失敗しました', 'error');
-        }
-    };
-});
+    // モーダルからアイテム追加（一時的に無効化）
+    // app.addItemFromModal = async function() {
+    //     // ログイン機能のみに絞っているため、一時的に無効化
+    // };
 
 // キーボードショートカット
 document.addEventListener('keydown', (e) => {
